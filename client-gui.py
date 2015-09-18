@@ -11,7 +11,7 @@ from pygame.locals import *
 pygame.font.init()
 pygame.mixer.init()
 
-screen = pygame.display.set_mode((800, 480))
+screen = pygame.display.set_mode((1200, 760))
 clock = pygame.time.Clock()
 
 #
@@ -74,12 +74,36 @@ class Client:
     self.socket.shutdown(2)
     self.socket.close()
 
+  def createStatsString( self ):
+    """ Creates the string that can be displayed
+        to inform players about what's going on
+        in the game.
+    """
+    self.stats = ""
+    self.stats += '%-20.20s Bid Tricks Score' % 'Name' + '/n'
+    for p in self.players:
+      if p.bid >= 0:
+        self.stats += '%-20.20s %3d  %3d  %5d' % (p.name, p.bid, p.numTricks, p.score) + '/n'
+      else:
+        self.stats += '%-20.20s      %3d  %5d' % (p.name, p.numTricks, p.score) + '/n'
+
+  class View:
+
+    def __init__(self):
+      #Initialization
+      textFont = pygame.font.Font(None, 28)
+      # This sets up the background image, and its container rect
+      background, backgroundRect = imageLoad("background.jpg", 0)
+      exiting = False
+
+
 ###### SYSTEM FUNCTIONS BEGIN #######
 def imageLoad(name, card):
   """ Function for loading an image. Makes sure the game is compatible across multiple OS'es, as it
   uses the os.path.join function to get he full filename. It then tries to load the image,
   and raises an exception if it can't, so the user will know specifically what's going if the image loading
-  does not work. """
+  does not work. 
+  """
 
   if card:
       fullname = os.path.join("images/cards/", name)
@@ -91,8 +115,7 @@ def imageLoad(name, card):
     print 'Cannot load image:', name
     raise SystemExit, message
   image = image.convert()
-
-    return image, image.get_rect()
+  return image, image.get_rect()
 
 def soundLoad(name):
     """ Same idea as the imageLoad function. """
@@ -127,4 +150,44 @@ class cardSprite(pygame.sprite.Sprite):
         self.position = position
     def update(self):
         self.rect.center = self.position
+###### SPRITE FUNCTIONS END #######
 
+
+###### MAIN GAME FUNCTIONS BEGIN #######
+def checkExit():
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            return True
+        elif event.type == KEYDOWN and event.key == K_ESCAPE:
+            return True
+    return False
+
+def displayStats(client, font):
+  stats = display(font, client.stats)
+  screen.blit(self.stats, 1030,170)
+
+
+
+def mainLoop():
+  #Initialization
+  textFont = pygame.font.Font(None, 28)
+  # This sets up the background image, and its container rect
+  background, backgroundRect = imageLoad("background.jpg", 0)
+  exiting = False
+
+  while not exiting:
+    screen.blit(background, backgroundRect)
+    hello_world = display(textFont, "Scores:")
+    screen.blit(hello_world, (1055,150))
+
+
+
+    exiting = checkExit()
+    pygame.display.flip()
+    clock.tick(60)
+
+###### MAIN GAME FUNCTIONS END #########
+
+if __name__ == '__main__':
+  mainLoop()
+  
