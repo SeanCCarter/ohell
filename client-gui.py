@@ -39,6 +39,9 @@ clock = pygame.time.Clock()
 #   numTricks
 #     number of tricks for hand
 #
+#   log
+#     list of information to be displayed
+#
 class Client:
 
   #
@@ -53,6 +56,38 @@ class Client:
     self.buffer = []
     self.server = server
     self.port = port
+    self.log = []
+
+  def displayStats(self, font):
+    stats = createStatsString()
+    stats = display(font, stats)
+    screen.blit(stats, 1030,170)
+
+  def displayLog(self, font):
+    log = ""
+    for line in self.log:
+      log += "\n" + line
+    log = display(font, log)
+    screen.blit(log, 1030, 600)
+
+  def log( self, line ):
+    self.log.append(line)
+    if len(self.log) > 10:
+      self.log = self.log[1:]
+
+  def createStatsString( self ):
+    """ Creates the string that can be displayed
+        to inform players about what's going on
+        in the game.
+    """
+    stats = ""
+    stats += '%-20.20s Bid Tricks Score' % 'Name' + '/n'
+    for p in self.players:
+      if p.bid >= 0:
+        self.stats += '%-20.20s %3d  %3d  %5d' % (p.name, p.bid, p.numTricks, p.score) + '/n'
+      else:
+        self.stats += '%-20.20s      %3d  %5d' % (p.name, p.numTricks, p.score) + '/n'
+    return stats
 
   def play( self ):
     self.socket = socket(AF_INET, SOCK_STREAM)
@@ -74,18 +109,83 @@ class Client:
     self.socket.shutdown(2)
     self.socket.close()
 
-  def createStatsString( self ):
-    """ Creates the string that can be displayed
-        to inform players about what's going on
-        in the game.
-    """
-    self.stats = ""
-    self.stats += '%-20.20s Bid Tricks Score' % 'Name' + '/n'
-    for p in self.players:
-      if p.bid >= 0:
-        self.stats += '%-20.20s %3d  %3d  %5d' % (p.name, p.bid, p.numTricks, p.score) + '/n'
-      else:
-        self.stats += '%-20.20s      %3d  %5d' % (p.name, p.numTricks, p.score) + '/n'
+  def getBid( self ):
+
+
+  def playGame( self ):
+    #Initialization
+    textFont = pygame.font.Font(None, 28)
+    # This sets up the background image, and its container rect
+    background, backgroundRect = imageLoad("background.jpg", 0)
+    exiting = False
+    while not exiting:
+      command = self.readline()
+      debug.echo('Read: ' +  command)
+      tokens =  string.split(command)
+      if tokens[0] == 'GAME_OVER':
+        winnerNum = int(tokens[1])
+        gameOver(self.players[winnerNum].name)
+        break
+
+      elif tokens[0] == 'NEW_PLAYER':
+        self.log('Player', tokens[1], 'has joined the game')
+
+      elif tokens[0] == 'START_GAME':
+        self.players = []
+        numPlayers = int(tokens[1])
+        for i in range(numPlayers):
+          self.players.append( Player(tokens[2*i+2], int(tokens[2*i+3])) )
+        self.log( 'Game starting with players:' ),
+        for player in self.players[:-1]:
+          log(player.name)
+        log(self.players[-1:][0].name)
+
+      elif tokens[0] == 'NEW_HAND':
+        self.cardList = CardList()
+        self.numTricks = int(tokens[1])
+        self.log('New hand... Tricks: ', self.numTricks, 'Dealer:', \
+              self.players[int(tokens[2])].name)
+
+      elif tokens[0] == 'DRAW':
+        card = int(tokens[1])
+        debug.echo( 'Dealt ' + cardToString(card))
+        self.cardList.addCard(card)
+
+      elif tokens[0] == 'DEAL_OVER':
+        self.trump = int(tokens[1])
+      
+      elif tokens[0] == 'BID_ANNOUNCE':
+        playerNum = int(tokens[1])
+        bid = int(tokens[2])
+        log('Player "%s" bid %s' % (self.players[playerNum].name, bid))
+        self.players[playerNum].bid = bid
+
+      elif tokens[0] == 'BID':
+        self.getBid()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def gameOver( self, winner ):
+  start_time = pygame.time.get_ticks()
+  delay = 3*1000 #Number of seconds, times 1000, because the program returns in miliseconds
+  endText = game_over_font.render(winner + " won!", 1, (0,0,0))
+  while pygame.time.get_ticks() < (start_time + delay):
+    display.fill(BACKGROUND)
+    display.blit(endText, (470, 100))
+    pygame.display.flip()
+    clock.tick(60)
 
   class View:
 
@@ -162,9 +262,6 @@ def checkExit():
             return True
     return False
 
-def displayStats(client, font):
-  stats = display(font, client.stats)
-  screen.blit(self.stats, 1030,170)
 
 
 
