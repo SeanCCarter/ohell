@@ -1,18 +1,25 @@
 #!/usr/bin/python
 #Credit to Allan Lavell for his blackjack program,
-#and Paul Carter for the actual ohell game
 #The basic window and card GUI are adapted from it.
+#and Paul Carter for the actual ohell game
+
 
 import os
-import sys
 
 import pygame
 from pygame.locals import *
+import string, sys, debug
+from card import *
+from socket import socket, AF_INET, SOCK_STREAM
+from time import sleep
 pygame.font.init()
 pygame.mixer.init()
 
+debug = debug.Debug()
+
 screen = pygame.display.set_mode((1200, 760))
 clock = pygame.time.Clock()
+BACKGROUND = (0,0,0)
 
 #
 # Oh Hell Client class
@@ -58,16 +65,27 @@ class Client:
     self.port = port
     self.log = []
 
+  def test_gui(self):
+    #Initialization
+    textFont = pygame.font.Font(None, 28)
+    # This sets up the background image, and its container rect
+    background, backgroundRect = imageLoad("background.jpg", 0)
+    exiting = False
+    while not exiting:
+      screen.blit(background, backgroundRect)
+      exiting = checkExit()
+
+
   def displayStats(self, font):
     stats = createStatsString()
-    stats = display(font, stats)
+    stats = displaytext(font, stats)
     screen.blit(stats, 1030,170)
 
   def displayLog(self, font):
     log = ""
     for line in self.log:
       log += "\n" + line
-    log = display(font, log)
+    log = displaytext(font, log)
     screen.blit(log, 1030, 600)
 
   def log( self, line ):
@@ -110,7 +128,7 @@ class Client:
     self.socket.close()
 
   def getBid( self ):
-
+    pass
 
   def playGame( self ):
     #Initialization
@@ -173,10 +191,6 @@ class Client:
 
 
 
-
-
-
-
 def gameOver( self, winner ):
   start_time = pygame.time.get_ticks()
   delay = 3*1000 #Number of seconds, times 1000, because the program returns in miliseconds
@@ -200,14 +214,14 @@ def gameOver( self, winner ):
 ###### SYSTEM FUNCTIONS BEGIN #######
 def imageLoad(name, card):
   """ Function for loading an image. Makes sure the game is compatible across multiple OS'es, as it
-  uses the os.path.join function to get he full filename. It then tries to load the image,
+  uses the os.path.join function to get the full filename. It then tries to load the image,
   and raises an exception if it can't, so the user will know specifically what's going if the image loading
   does not work. 
   """
 
   if card:
-      fullname = os.path.join("images/cards/", name)
-  else: fullname = os.path.join('images', name)
+      fullname = os.path.join("./images/cards/", name)
+  else: fullname = os.path.join('./images', name)
 
   try:
       image = pygame.image.load(fullname)
@@ -227,7 +241,7 @@ def soundLoad(name):
         raise SystemExit, message
     return sound
 
-def display(font, sentence):
+def displaytext(font, sentence):
     """ Displays text at the bottom of the screen, informing the player of what is going on."""
 
     displayFont = pygame.font.Font.render(font, sentence, 1, (255,255,255), (0,0,0))
@@ -266,25 +280,23 @@ def checkExit():
 
 
 def mainLoop():
-  #Initialization
-  textFont = pygame.font.Font(None, 28)
-  # This sets up the background image, and its container rect
-  background, backgroundRect = imageLoad("background.jpg", 0)
-  exiting = False
-
-  while not exiting:
-    screen.blit(background, backgroundRect)
-    hello_world = display(textFont, "Scores:")
-    screen.blit(hello_world, (1055,150))
-
-
-
-    exiting = checkExit()
-    pygame.display.flip()
-    clock.tick(60)
+  client = Client("Test Client", )
 
 ###### MAIN GAME FUNCTIONS END #########
 
 if __name__ == '__main__':
-  mainLoop()
+  if len(sys.argv) > 2:
+    print 'Usage: client.py [server]'
+    sys.exit(1)
+  elif len(sys.argv) == 2:
+    server = sys.argv[1]
+  else:
+    server = ''
+
+  debug.turnOff()
+  print 'Enter name: ',
+  name = sys.stdin.readline()
+
+  client = Client(name, server)
+  client.test_gui()
   
