@@ -70,15 +70,22 @@ class Client:
     textFont = pygame.font.Font(None, 28)
     # This sets up the background image, and its container rect
     background, backgroundRect = imageLoad("background.jpg", 0)
+    cardpic, cardRect = imageLoad("back.png",1)
     exiting = False
     while not exiting:
       screen.blit(background, backgroundRect)
+      coordinates = pygame.mouse.get_pos()
+      screen.blit(cardpic, coordinates)
+      print coordinates
+      pygame.display.flip()
       exiting = checkExit()
 
 
   def displayStats(self, font):
     stats = createStatsString()
     stats = displaytext(font, stats)
+    scoreText = displaytext(font, "Scores:")
+    screen.blit(scoreText, 1030, 160)
     screen.blit(stats, 1030,170)
 
   def displayLog(self, font):
@@ -180,10 +187,6 @@ class Client:
 
       elif tokens[0] == 'BID':
         self.getBid()
-
-
-
-
 
 
 
@@ -294,8 +297,9 @@ if __name__ == '__main__':
     server = ''
 
   debug.turnOff()
-  print 'Enter name: ',
-  name = sys.stdin.readline()
+  #print 'Enter name: ',
+  #name = sys.stdin.readline()
+  name = "Sean"
 
   client = Client(name, server)
   client.test_gui()
