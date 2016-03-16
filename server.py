@@ -130,7 +130,6 @@ class OhHellServer:
     try:
       
       while 1:
-        print 'While loop'
         
         readable, writeable, exceptable = select( self.sockets, [], [] )
         
@@ -190,6 +189,7 @@ class OhHellServer:
       self.logoutPlayer(socket)
       
     elif self.state == 'REGISTRATION' or self.state == 'RESTART':
+      print "Registration state."
       
       if tokens[0] == 'LOGIN':
         print 'Login: ', tokens[1]
@@ -197,6 +197,7 @@ class OhHellServer:
         self.loginPlayer(socket, tokens[1])
         
         if self.numReadyPlayers == self.numPlayers:
+          print "Players Ready."
 
           # if new game
           if self.state == 'REGISTRATION':
