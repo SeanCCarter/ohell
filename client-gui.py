@@ -188,6 +188,7 @@ class Client:
         self.playedCards[player] = card
 
       elif tokens[0] == 'GET_CARD':
+        print "\a"
         exiting = self.playCard()
 
       elif tokens[0] == 'TRICK_WINNER':
@@ -231,6 +232,7 @@ class Client:
     #
     # get valid card choice from user
     #
+    fontobject = pygame.font.Font(None,30)
     cards = [i for i in range(52) if self.cardList.hasCard(i)]
     cardValue = -1
     cardSuit = -1
@@ -245,6 +247,7 @@ class Client:
             if cardrect.collidepoint(coords[0],coords[1]):
               card = cards[i]
               done = 1
+      screen.blit(fontobject.render("Play Card", 1, (0,0,255)), (440,390))
       self.updateDisplay()
     #
     # send choice to server
