@@ -247,8 +247,8 @@ class Client:
             if cardrect.collidepoint(coords[0],coords[1]):
               card = cards[i]
               done = 1
-      self.screen.blit(fontobject.render("Play Card", 1, (0,0,255)), (440,390))
       self.updateDisplay()
+      self.screen.blit(fontobject.render("Play Card", 1, (0,0,255)), (440,390))
     #
     # send choice to server
     #
