@@ -159,7 +159,7 @@ class Client:
       elif tokens[0] == 'NEW_HAND':
         self.cardList = CardList()
         self.numTricks = int(tokens[1])
-        self.playedCards = [-1 for i in xrange(self.numTricks)]
+        self.playedCards = [-1 for i in xrange(len(self.players))]
         self.addToLog('New hand... Tricks: '+ str(self.numTricks))
         self.addToLog( 'Dealer: '+ self.players[int(tokens[2])].name)
 
